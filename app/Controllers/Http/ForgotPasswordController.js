@@ -3,6 +3,7 @@
 const User = use('App/Models/User') // model user para comparação de email
 const Crypto = require('crypto') // lib para criptografia
 const Mail = use('Mail') // funcionalidade de email do js
+const Moment = require('moment')
 
 class ForgotPasswordController {
   async store ({ request, response }) { // request =  Pega os dados fornecidos; response = A resposta da aplicação
@@ -27,6 +28,32 @@ class ForgotPasswordController {
       )
     } catch (err) {
       return response.status(err.status).send({ error: 'Algo não deu certo!' })
+    }
+  }
+
+  async update ({ request, response }) { // alteração de senha
+    try {
+      const { token, password } = request.all() // token da requisição, password: nova senha
+
+      const user = await User.findByOrFail('token', token)
+
+      const tokenExpired = Moment()
+        .subtract('2', 'days') // verificar se o token já passou de 2 dias
+        .isAfter(user.token_created_at) // compara a data atual com a data do token
+
+      if (tokenExpired) {
+        return response
+          .status(401)
+          .send({ error: { message: 'Token expirado' } })
+      }
+
+      user.token = null // apagando token
+      user.token_created_at = null // apagando data
+      user.password = password // salvando senha nova
+
+      await user.save() // não pode esquecer o save
+    } catch (err) {
+      response.status(err.status).send({ error: { message: 'Algo deu errado' } })
     }
   }
 }
