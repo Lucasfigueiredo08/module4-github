@@ -7,3 +7,5 @@ Route.post('sessions', 'SessionController.store') // rota de login do usuario
 
 Route.post('passwords', 'ForgotPasswordController.store') // rota de solicitação de recuperação de senha
 Route.put('passwords', 'ForgotPasswordController.update')
+
+Route.post('files', 'FileController.store')
