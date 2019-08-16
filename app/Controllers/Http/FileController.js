@@ -10,21 +10,21 @@ class FileController {
 
       const upload = request.file('file', { size: '2mb' })
 
-      const fileName = `${Date.now()}.${upload.subtype}`
+      const fileName = `${Date.now()}.${upload.subtype}` // colocar a data da criação no nome
 
-      await upload.move(Helpers.tmpPath('uploads'), {
-        name: fileName
+      await upload.move(Helpers.tmpPath('uploads'), { // utilizar helpers para direcionar a pasta tmp uploads
+        name: fileName // nome do arquivo
       })
 
       if (!upload.moved()) {
-        throw upload.error()
+        throw upload.error()  // caso de errp
       }
 
       const file = File.create({
-        file: fileName,
-        name: upload.clientName,
-        type: upload.type,
-        subtype: upload.subtype
+        file: fileName, // nome com a data da criação
+        name: upload.clientName, // nome da imagem
+        type: upload.type, // tipo da imagem
+        subtype: upload.subtype // extensão da imagem
       })
 
       return file
@@ -32,6 +32,12 @@ class FileController {
       response.status(err.status)
         .send({ error: { message: 'Erro no upload' } })
     }
+  }
+
+  async show ({ params, response }) {
+    const file = await File.findOrFail(params.id) // pega o parametro passado na url e compara os ids
+
+    return response.download(Helpers.tmpPath(`uploads/${file.file}`)) // pega o arquivo solicitado dentro da pasta de imagens
   }
 }
 
