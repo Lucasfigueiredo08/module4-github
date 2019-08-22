@@ -1,12 +1,7 @@
 'use strict'
 
-/** @typedef {import('@adonisjs/framework/src/Request')} Request */
-/** @typedef {import('@adonisjs/framework/src/Response')} Response */
-/** @typedef {import('@adonisjs/framework/src/View')} View */
+const Project = use('App/Models/Project')
 
-/**
- * Resourceful controller for interacting with projects
- */
 class ProjectController {
   /**
    * Show a list of all projects.
@@ -18,6 +13,9 @@ class ProjectController {
    * @param {View} ctx.view
    */
   async index ({ request, response, view }) {
+    const project = await Project.query().with('user').fetch()
+
+    return project
   }
 
   /**
@@ -29,18 +27,12 @@ class ProjectController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async create ({ request, response, view }) {
-  }
+  async store ({ request, response, auth }) { // para pegar informações do usuário = auth
+    const data = await request.only(['title', 'description']) // pegando da requisição apenas estes dados
 
-  /**
-   * Create/save a new project.
-   * POST projects
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async store ({ request, response }) {
+    const project = await Project.create({ ...data, user_id: auth.user.id }) // criando o registro no banco dos dados mais o id
+
+    return project
   }
 
   /**
@@ -52,7 +44,13 @@ class ProjectController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async show ({ params, request, response, view }) {
+  async show ({ params }) {
+    const project = await Project.findOrFail(params.id) // findOrFail busca o parametro da url = id do item
+
+    await project.load('user') // carrega as informações do usuario no response
+    await project.load('tasks') // carrega as informaçoes das tarefas do projeto
+
+    return project
   }
 
   /**
@@ -64,18 +62,16 @@ class ProjectController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async edit ({ params, request, response, view }) {
-  }
+  async update ({ params, request }) {
+    const project = await Project.findOrFail(params.id)
 
-  /**
-   * Update project details.
-   * PUT or PATCH projects/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async update ({ params, request, response }) {
+    const data = await request.only(['title', 'description'])
+
+    project.merge(data)
+
+    await project.save()
+
+    return project
   }
 
   /**
@@ -86,7 +82,10 @@ class ProjectController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async destroy ({ params, request, response }) {
+  async destroy ({ params }) {
+    const project = await Project.findOrFail(params.id)
+
+    await project.delete()
   }
 }
 
