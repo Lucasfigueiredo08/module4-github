@@ -14,4 +14,5 @@ Route.group(() => { // trabalha em grupos de rotas
   Route.post('files', 'FileController.store')
 
   Route.resource('projects', 'ProjectController').apiOnly() // grupo de rotas da api.
+  Route.resource('projects.tasks', 'TaskController').apiOnly() // grupo de rotas task dentro de projetos
 }).middleware('auth') // apenas usuarios logados podem acessar essa rota

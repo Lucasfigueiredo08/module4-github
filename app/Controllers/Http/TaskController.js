@@ -1,12 +1,7 @@
 'use strict'
 
-/** @typedef {import('@adonisjs/framework/src/Request')} Request */
-/** @typedef {import('@adonisjs/framework/src/Response')} Response */
-/** @typedef {import('@adonisjs/framework/src/View')} View */
+const Task = use('App/Models/Task')
 
-/**
- * Resourceful controller for interacting with tasks
- */
 class TaskController {
   /**
    * Show a list of all tasks.
@@ -17,19 +12,13 @@ class TaskController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, view }) {
-  }
+  async index ({ params }) {
+    const tasks = await Task.query() // uma query no adonis
+      .where('project_id', params.projects_id) // compara o id do parametro com o banco e retorna
+      .with('user') // qual e o usuario
+      .fetch()
 
-  /**
-   * Render a form to be used for creating a new task.
-   * GET tasks/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async create ({ request, response, view }) {
+    return tasks
   }
 
   /**
@@ -40,7 +29,18 @@ class TaskController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store ({ request, response }) {
+  async store ({ request, params }) {
+    const data = await request.only([
+      'user_id',
+      'title',
+      'description',
+      'due_date',
+      'file_id'
+    ])
+
+    const task = await Task.create({ ...data, project_id: params.projects_id })
+
+    return task
   }
 
   /**
@@ -56,18 +56,6 @@ class TaskController {
   }
 
   /**
-   * Render a form to update an existing task.
-   * GET tasks/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
-  }
-
-  /**
    * Update task details.
    * PUT or PATCH tasks/:id
    *
@@ -76,6 +64,20 @@ class TaskController {
    * @param {Response} ctx.response
    */
   async update ({ params, request, response }) {
+    const task = await Task.findOrFail(params.id)
+    const data = await request.only([
+      'user_id',
+      'title',
+      'description',
+      'due_date',
+      'file_id'
+    ])
+
+    task.merge(data) // sobrescreve as informacoes
+
+    await task.save() // salva
+
+    return task
   }
 
   /**
@@ -86,7 +88,10 @@ class TaskController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async destroy ({ params, request, response }) {
+  async destroy ({ params }) {
+    const task = await Task.findOrFail(params.id)
+
+    await task.delete()
   }
 }
 
