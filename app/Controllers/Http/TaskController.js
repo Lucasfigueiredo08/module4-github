@@ -88,7 +88,7 @@ class TaskController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async destroy ({ params cx}) {
+  async destroy ({ params }) {
     const task = await Task.findOrFail(params.id)
 
     await task.delete()
