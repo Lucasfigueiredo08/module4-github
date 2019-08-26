@@ -19,7 +19,9 @@ const providers = [
   '@adonisjs/mail/providers/MailProvider',
   '@adonisjs/framework/providers/ViewProvider', // Necessaria para trabalhar com o texto q vai ser enviado pelo Mail
   '@adonisjs/validator/providers/ValidatorProvider',
-  '@adonisjs/antl/providers/AntlProvider' // internationalization
+  '@adonisjs/antl/providers/AntlProvider', // internationalization
+  '@adonisjs/redis/providers/RedisProvider', // Redis is an open source (BSD licensed), in-memory data structure store, used as a database, cache and message broker.
+  'adonis-kue/providers/KueProvider' // // This library provides an easy way to get started with an asynchronous job queue for AdonisJS.
 ]
 
 /*
@@ -32,7 +34,8 @@ const providers = [
 |
 */
 const aceProviders = [
-  '@adonisjs/lucid/providers/MigrationsProvider'
+  '@adonisjs/lucid/providers/MigrationsProvider',
+  'adonis-kue/providers/CommandsProvider' // novos comandos
 ]
 
 /*
@@ -59,4 +62,8 @@ const aliases = {}
 */
 const commands = []
 
-module.exports = { providers, aceProviders, aliases, commands }
+const jobs = [
+  'App/Jobs/NewTaskMail'
+]
+
+module.exports = { providers, aceProviders, aliases, commands, jobs }
