@@ -6,7 +6,7 @@ Route.post('users', 'UserController.store').validator('User') // rota criação 
 Route.post('sessions', 'SessionController.store').validator('Session') // rota de login do usuario
 
 Route.post('passwords', 'ForgotPasswordController.store').validator('ForgotPassword') // rota de solicitação de recuperação de senha
-Route.put('passwords', 'ForgotPasswordController.update').validator('Reset Password')
+Route.put('passwords', 'ForgotPasswordController.update').validator('ResetPassword')
 
 Route.get('files/:id', 'FileController.show')
 
